@@ -46,8 +46,9 @@
                         var text = e.target.result;
                         var lines = text.split(/\n/g); //split the text to every line
                         var newTable = document.createElement("table");
+                        path = new Array();
                         for (var rows = 0; rows < lines.length - 1; rows++) {
-
+                            path[rows] = new Array();
                             var newRow = document.createElement("tr");
                             newTable.appendChild(newRow);
                             var char = lines[rows].split(" "); //
@@ -55,6 +56,7 @@
                             for (var cols = 0; cols < char.length; cols++) {
                                 var newCell = document.createElement("td");
                                 var str = char[cols].trim();
+                                path[rows][cols] = str;
                                 var c = document.createTextNode(str);
                                 switch (str) {
                                     case '-1':
