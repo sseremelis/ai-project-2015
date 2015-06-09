@@ -3,99 +3,10 @@
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-        <style>
-            table {
-                border-collapse: collapse;
-            }
-            td{
-                width: 20px;
-                height: 20px;
-                text-align: center;
-                vertical-align: middle;
-                border: 1px solid black;
-            }
-            .walls {
-                background-color: black;
-            }
-            .S{
-                background-color: green;
-            }
-            .G{
-                background-color: red;
-            }
-            .A{
-                background-color: lightblue;
-            }
-            .B{
-                background-color: lightblue;
-            }
-
-
-        </style>
-        <script>
-            function handleFileSelect() {
-                
-                var fileInput = document.getElementById('fileInput'); //get the file selector
-                var file = fileInput.files[0]; //store the reference to the file
-                var textType = /text.*/;
-
-                if (file.type.match(textType)) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        var text = e.target.result;
-                        var lines = text.split(/\n/g); //split the text to every line
-                        var newTable = document.createElement("table");
-                        path = new Array();
-                        for (var rows = 0; rows < lines.length - 1; rows++) {
-                            path[rows] = new Array();
-                            var newRow = document.createElement("tr");
-                            newTable.appendChild(newRow);
-                            var char = lines[rows].split(" "); //
-
-                            for (var cols = 0; cols < char.length; cols++) {
-                                var newCell = document.createElement("td");
-                                var str = char[cols].trim();
-                                path[rows][cols] = str;
-                                var c = document.createTextNode(str);
-                                switch (str) {
-                                    case '-1':
-                                        newCell.setAttribute("class", "walls");
-                                        break;
-                                    case 'A':
-                                        newCell.setAttribute("class", "A");
-                                        break;
-                                    case 'B':
-                                        newCell.setAttribute("class", "B");
-                                        break;
-                                    case 'S':
-                                        newCell.setAttribute("class", "S");
-                                        break;
-                                    case 'G':
-                                        newCell.setAttribute("class", "G");
-                                        break;
-                                    default:
-
-                                        break;
-
-                                }
-                                newCell.appendChild(c);
-                                newRow.appendChild(newCell);
-                            }
-                        }
-                        var cont = document.getElementById("content");
-                        cont.innerHTML = "";
-                        cont.appendChild(newTable);
-                    };
-
-                    reader.readAsText(file);
-                } else {
-                    fileDisplayArea.innerText = "File not supported!";
-                }
-            }
-
-
-        </script>
+        
+        <link rel="stylesheet" type="text/css" href="style.css">       
+        <script src="script.js"></script>
+     
     </head>
     <body>
         <form>

@@ -1,0 +1,25 @@
+table {
+    border-collapse: collapse;
+}
+td{
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid black;
+}
+.walls {
+    background-color: black;
+}
+.S{
+    background-color: green;
+}
+.G{
+    background-color: red;
+}
+.A{
+    background-color: lightblue;
+}
+.B{
+    background-color: lightblue;
+}
