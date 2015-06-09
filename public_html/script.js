@@ -1,3 +1,4 @@
+var neigh = new Array();
 function handleFileSelect() {
 
     var fileInput = document.getElementById('fileInput'); //get the file selector
@@ -56,7 +57,6 @@ function handleFileSelect() {
             var cont = document.getElementById("content");
             cont.innerHTML = "";
             cont.appendChild(newTable);
-            findNeighbours();
         };
 
         reader.readAsText(file);
@@ -65,12 +65,12 @@ function handleFileSelect() {
     }
 }
 
-function findNeighbours() {
-    var start = document.getElementsByClassName("S")[0];
+function findNeighbours(center) {
+    var start = document.getElementsByClassName(center)[0];
     var coord = start.id.split(":"); //get the coordinates of the starting node
     var x = parseInt(coord[0]);
     var y = parseInt(coord[1]);
-    var neigh = new Array();
+    
     if (y >= 1) {
         neigh.push(document.getElementById(x + ":" + (y - 1)));
     }
@@ -85,8 +85,17 @@ function findNeighbours() {
     }
     for (var i = 0; i < neigh.length; i++) {
         if (neigh[i].getAttribute("value") != "-1") {
-            neigh[i].setAttribute("style", "background-color: palegreen;")
+            neigh[i].setAttribute("style", "background-color: silver;")
         }
     }
+}
+
+function DFS(start,end){
+    var frontier;
+    var closed;
+    var state;
+    
+    var s = document.getElementById(start);
+    
 }
 
