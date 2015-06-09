@@ -1,4 +1,6 @@
 var neigh = new Array();
+var visited = new Array();
+var path = new Array();
 function handleFileSelect() {
 
     var fileInput = document.getElementById('fileInput'); //get the file selector
@@ -30,7 +32,7 @@ function handleFileSelect() {
                         case 'A':
                             newCell.setAttribute("class", "A");
                             newCell.setAttribute("value", "A");
-                            break;                            
+                            break;
                         case 'B':
                             newCell.setAttribute("class", "B");
                             newCell.setAttribute("value", "B");
@@ -57,6 +59,7 @@ function handleFileSelect() {
             var cont = document.getElementById("content");
             cont.innerHTML = "";
             cont.appendChild(newTable);
+            DFS("S", "canteen")
         };
 
         reader.readAsText(file);
@@ -65,37 +68,95 @@ function handleFileSelect() {
     }
 }
 
-function findNeighbours(center) {
-    var start = document.getElementsByClassName(center)[0];
+function findNeighbours(start) {
+//    var start = document.getElementsByClassName(center)[0];
     var coord = start.id.split(":"); //get the coordinates of the starting node
     var x = parseInt(coord[0]);
     var y = parseInt(coord[1]);
-    
+    neigh = [];
     if (y >= 1) {
-        neigh.push(document.getElementById(x + ":" + (y - 1)));
+        var n1 = document.getElementById(x + ":" + (y - 1));
+        if (n1.getAttribute("value") != "-1" && visited.indexOf(n1) == -1) {
+            neigh.push(n1);
+        }
     }
     if (y + 1 < table_columns) {
-        neigh.push(document.getElementById(x + ":" + (y + 1)));
+        var n2 = document.getElementById(x + ":" + (y + 1));
+        if (n2.getAttribute("value") != "-1" && visited.indexOf(n2) == -1) {
+            neigh.push(n2);
+        }
     }
     if (x >= 1) {
-        neigh.push(document.getElementById((x - 1) + ":" + y));
+        var n3 = document.getElementById((x - 1) + ":" + y);
+        if (n3.getAttribute("value") != "-1" && visited.indexOf(n3) == -1) {
+            neigh.push(n3);
+        }
     }
     if (x + 1 < table_rows) {
-        neigh.push(document.getElementById((x + 1) + ":" + y));
+        var n4 = document.getElementById((x + 1) + ":" + y);
+        if (n4.getAttribute("value") != "-1" && visited.indexOf(n4) == -1) {
+            neigh.push(n4);
+        }
+
     }
-    for (var i = 0; i < neigh.length; i++) {
-        if (neigh[i].getAttribute("value") != "-1") {
-            neigh[i].setAttribute("style", "background-color: silver;")
+}
+
+function DFS(start, end) {
+    var frontier = new Array();
+    var state;
+    var s = document.getElementsByClassName(start)[0];
+    if (end != "canteen") {
+        var goal = document.getElementsByClassName(end)[0];
+    }
+    frontier.push(s); //put the starting element in the frontier
+    state = frontier[0];
+    var continueSearch = true;
+    while (continueSearch == true) {
+        if (end == "canteen") {
+            if (state.getAttribute("value") == "A" || state.getAttribute("value") == "B") {
+                continueSearch = false;
+                break;
+            }
+
+        }
+        else {
+            if (state.getAttribute("value") == goal.getAttribute("value")) {
+                continueSearch = false;
+                break;
+            }
+        }
+        console.log(state.getAttribute("value"));
+        visited.push(state);
+        frontier.shift(); //remove the first element from frontier
+        findNeighbours(state); //get the children of the first element in the frontier
+
+        for (var i = 0; i < neigh.length; i++) {
+            frontier.unshift(neigh[i]); //put the children of the first element in the 
+        }
+        for (var i = 0; i < frontier.length; i++) {
+            console.log(frontier[i].id);
+        }
+        state = frontier[0]; //set the state as the first element of the frontier
+        path.push(state);
+
+    }
+    if (end == "canteen") {
+        console.log("Found canteen " + state.getAttribute("value"));
+//        colorPath(path);
+        DFS(state.getAttribute("value"), "G")
+        
+    }
+    else {
+        console.log("Found goal!!!!")
+        colorPath(path);
+    }
+
+}
+
+function colorPath(path) {
+    for (var i = 0; i < path.length; i++) {
+        if (path[i].getAttribute("value") != "G" && path[i].getAttribute("value") != "B" && path[i].getAttribute("value") != "A") {
+            path[i].setAttribute("style", "background-color: #FFFF99;");
         }
     }
 }
-
-function DFS(start,end){
-    var frontier;
-    var closed;
-    var state;
-    
-    var s = document.getElementById(start);
-    
-}
-
