@@ -68,6 +68,7 @@ function displayMaze() { //
 }
 
 function selectAlgorithm() {
+    document.getElementById("searchButton").disabled = true;
     var dropdown = document.getElementById("algorithms");
     var alg = dropdown[dropdown.selectedIndex].value;
     window[alg]("S", "canteen"); //call the algorithm that the user chose
@@ -200,12 +201,11 @@ function BFS(start, end) {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
         BFS(state.getAttribute("value"), "G");
-
     }
     else {
-
         console.log("Found goal !!!");
         colorPath(path);
+        addClearButton();
     }
 }
 
@@ -225,6 +225,7 @@ function colorPath(path) {
 }
 
 function addClearButton() {
+    
     var b = document.createElement("button");
     var br = document.createElement("br");
     var t = document.createTextNode("Clear");
@@ -232,6 +233,7 @@ function addClearButton() {
     b.onclick = function () {
         document.getElementById("form").reset();
         document.getElementById("content").innerHTML = "";
+        document.getElementById("searchButton").disabled = false;
 
     };
     var c = document.getElementById("content");
