@@ -1,8 +1,8 @@
-var neigh = new Array();
-var visited = new Array();
-var path = new Array();
-function handleFileSelect() {
+var neigh = new Array();  //to store the 4 neighbours of the cell
+var visited = new Array(); //to store the cells that the algorithm has visited
+var path = new Array(); //to store the final path
 
+function displayMaze() { //
     var fileInput = document.getElementById('fileInput'); //get the file selector
     var file = fileInput.files[0]; //store the reference to the file
     var textType = /text.*/;
@@ -57,15 +57,20 @@ function handleFileSelect() {
             }
             table_columns = char.length;
             var cont = document.getElementById("content");
-            cont.innerHTML = "";
+            cont.innerHTML = '';
             cont.appendChild(newTable);
-            DFS("S", "canteen")
         };
 
         reader.readAsText(file);
     } else {
         fileDisplayArea.innerText = "File not supported!";
     }
+}
+
+function selectAlgorithm() {
+    var dropdown = document.getElementById("algorithms");
+    var alg = dropdown[dropdown.selectedIndex].value;
+    window[alg]("S", "canteen"); //call the algorithm that the user chose
 }
 
 function findNeighbours(start) {
@@ -158,6 +163,7 @@ function DFS(start, end) {
     else {
         console.log("Found goal!!!!")
         colorPath(path);
+        addClearButton();
     }
 
 }
@@ -168,4 +174,20 @@ function colorPath(path) {
             path[i].setAttribute("style", "background-color: #FFFF99;");
         }
     }
+}
+
+function addClearButton() {
+    var b = document.createElement("button");
+    var br = document.createElement("br");
+    var t = document.createTextNode("Clear");
+    b.appendChild(t);
+    b.onclick = function () {
+        document.getElementById("form").reset();
+        document.getElementById("content").innerHTML = "";
+        
+    };
+    var c = document.getElementById("content");
+    c.appendChild(br);
+    c.appendChild(br);
+    c.appendChild(b);
 }

@@ -3,27 +3,29 @@
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        
+
         <link rel="stylesheet" type="text/css" href="style.css">       
         <script src="script.js"></script>
-     
+
     </head>
     <body>
-        <form>
+        <form id="form">
             <p>Select the maze file</p>
-            <input type="file" id="fileInput" onchange="handleFileSelect(this)">
+            <input type="file" id="fileInput" onchange="displayMaze()">
+            </form>
             <p>Select the algorithm</p>
-            <select name="Algorithms">
-                <option value="1">Breadth first</option>
-                <option value="2">DFS</option>
-                <option value="3">Branch and bound</option>
-                <option value="4">Best first</option>
-                <option value="5">A*</option>
+            <select id="algorithms">
+                <option value="BFS">Breadth First Search</option>
+                <option value="DFS">Depth First Search</option>
+                <option value="BnB">Branch and Bound</option>
+                <option value="BF">Best First</option>
+                <option value="Astar">A*</option>
             </select>
             <br><br>
-            <button>Search</button>
-        </form>
-        <br>
+            <button onclick="selectAlgorithm();">Search</button>
+        
+        <br><br>
+
         <div id="content"></div>
     </body>
 </html>
