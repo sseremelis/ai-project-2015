@@ -13,7 +13,7 @@ function handleFileSelect() {
             var text = e.target.result;
             var lines = text.split(/\n/g); //split the text to every line
             var newTable = document.createElement("table");
-            table_rows = lines.length;
+            table_rows = lines.length - 1;
 
             for (var rows = 0; rows < lines.length - 1; rows++) {
                 var newRow = document.createElement("tr");
@@ -104,6 +104,8 @@ function findNeighbours(start) {
 function DFS(start, end) {
     var frontier = new Array();
     var state;
+    var previousNeighLength = 0;
+    var stepsTaken = 0;
     var s = document.getElementsByClassName(start)[0];
     if (end != "canteen") {
         var goal = document.getElementsByClassName(end)[0];
@@ -129,7 +131,14 @@ function DFS(start, end) {
         visited.push(state);
         frontier.shift(); //remove the first element from frontier
         findNeighbours(state); //get the children of the first element in the frontier
-
+        if (neigh.length <= previousNeighLength) {
+            stepsTaken = stepsTaken + 1; //count how many steps the alg takes if it starts following a path
+        }
+        if (neigh.length == 0) {
+            for (var i = 0; i < stepsTaken; i++) {
+                path.pop();  //remove stepsTaken elements from path if it finds a deadend 
+            }
+        }
         for (var i = 0; i < neigh.length; i++) {
             frontier.unshift(neigh[i]); //put the children of the first element in the 
         }
@@ -137,14 +146,14 @@ function DFS(start, end) {
             console.log(frontier[i].id);
         }
         state = frontier[0]; //set the state as the first element of the frontier
+        previousNeighLength = neigh.length;
         path.push(state);
 
     }
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
-//        colorPath(path);
         DFS(state.getAttribute("value"), "G")
-        
+
     }
     else {
         console.log("Found goal!!!!")
