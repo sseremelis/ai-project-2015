@@ -79,22 +79,16 @@ function findNeighbours(start) {
     var x = parseInt(coord[0]);
     var y = parseInt(coord[1]);
     neigh = [];
-    if (y >= 1) {
-        var n1 = document.getElementById(x + ":" + (y - 1));
-        if (n1.getAttribute("value") != "-1" && visited.indexOf(n1) == -1) {
-            neigh.push(n1);
-        }
-    }
-    if (y + 1 < table_columns) {
-        var n2 = document.getElementById(x + ":" + (y + 1));
-        if (n2.getAttribute("value") != "-1" && visited.indexOf(n2) == -1) {
-            neigh.push(n2);
-        }
-    }
     if (x >= 1) {
         var n3 = document.getElementById((x - 1) + ":" + y);
         if (n3.getAttribute("value") != "-1" && visited.indexOf(n3) == -1) {
             neigh.push(n3);
+        }
+    }
+    if (y >= 1) {
+        var n1 = document.getElementById(x + ":" + (y - 1));
+        if (n1.getAttribute("value") != "-1" && visited.indexOf(n1) == -1) {
+            neigh.push(n1);
         }
     }
     if (x + 1 < table_rows) {
@@ -104,13 +98,18 @@ function findNeighbours(start) {
         }
 
     }
+    if (y + 1 < table_columns) {
+        var n2 = document.getElementById(x + ":" + (y + 1));
+        if (n2.getAttribute("value") != "-1" && visited.indexOf(n2) == -1) {
+            neigh.push(n2);
+        }
+    }
 }
 
 function DFS(start, end) {
     var frontier = new Array();
     var state;
-    var previousNeighLength = 0;
-    var stepsTaken = 0;
+    var map = new Map();
     var s = document.getElementsByClassName(start)[0];
     if (end != "canteen") {
         var goal = document.getElementsByClassName(end)[0];
@@ -124,7 +123,6 @@ function DFS(start, end) {
                 continueSearch = false;
                 break;
             }
-
         }
         else {
             if (state.getAttribute("value") == goal.getAttribute("value")) {
@@ -136,41 +134,91 @@ function DFS(start, end) {
         visited.push(state);
         frontier.shift(); //remove the first element from frontier
         findNeighbours(state); //get the children of the first element in the frontier
-        if (neigh.length <= previousNeighLength) {
-            stepsTaken = stepsTaken + 1; //count how many steps the alg takes if it starts following a path
-        }
-        if (neigh.length == 0) {
-            for (var i = 0; i < stepsTaken; i++) {
-                path.pop();  //remove stepsTaken elements from path if it finds a deadend 
-            }
-        }
+
         for (var i = 0; i < neigh.length; i++) {
-            frontier.unshift(neigh[i]); //put the children of the first element in the 
+            frontier.unshift(neigh[i]); //put the children of the first element in the
+            map.set(neigh[i],state);
         }
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
         state = frontier[0]; //set the state as the first element of the frontier
-        previousNeighLength = neigh.length;
-        path.push(state);
-
     }
+    findShortestPath(state,s,map);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
-        DFS(state.getAttribute("value"), "G")
-
+        visited.length = 0;
+        DFS(state.getAttribute("value"), "G");
     }
     else {
         console.log("Found goal!!!!")
         colorPath(path);
         addClearButton();
     }
+}
 
+function BFS(start, end) {
+    var map = new Map(); //store node and the next node it went
+    var frontier = new Array();
+    var state;
+    var s = document.getElementsByClassName(start)[0];
+    if (end != "canteen") {
+        var goal = document.getElementsByClassName(end)[0];
+    }
+    frontier.push(s); //put the starting element in the frontier
+    state = frontier[0];
+    var continueSearch = true;
+    while (continueSearch == true) {
+        if (end == "canteen") {
+            if (state.getAttribute("value") == "A" || state.getAttribute("value") == "B") {
+                continueSearch = false;
+                break;
+            }
+        }
+        else {
+            if (state.getAttribute("value") == goal.getAttribute("value")) {
+                continueSearch = false;
+                break;
+            }
+        }
+        console.log(state.getAttribute("value"));
+        visited.push(state);
+        frontier.shift(); //remove the first element from frontier
+        findNeighbours(state); //get the children of the first element in the frontier
+        for (var i = 0; i < neigh.length; i++) {
+            frontier.push(neigh[i]); //put the children of the first element in the
+            map.set(neigh[i], state);
+        }
+        for (var i = 0; i < frontier.length; i++) {
+            console.log(frontier[i].id);
+        }
+        state = frontier[0]; //set the state as the first element of the frontier
+        previousNeighLength = neigh.length;
+    }
+    findShortestPath(state, s, map);
+    if (end == "canteen") {
+        console.log("Found canteen " + state.getAttribute("value"));
+        visited.length = 0;
+        BFS(state.getAttribute("value"), "G");
+
+    }
+    else {
+
+        console.log("Found goal !!!");
+        colorPath(path);
+    }
+}
+
+function findShortestPath(curNode, start, map) {
+    while (curNode.getAttribute("value") != start.getAttribute("value")) {
+        path.push(curNode);
+        curNode = map.get(curNode);
+    }
 }
 
 function colorPath(path) {
     for (var i = 0; i < path.length; i++) {
-        if (path[i].getAttribute("value") != "G" && path[i].getAttribute("value") != "B" && path[i].getAttribute("value") != "A") {
+        if (path[i].getAttribute("value") != "G" && path[i].getAttribute("value") != "B" && path[i].getAttribute("value") != "A" && path[i].getAttribute("value") != "S") {
             path[i].setAttribute("style", "background-color: #FFFF99;");
         }
     }
@@ -184,7 +232,7 @@ function addClearButton() {
     b.onclick = function () {
         document.getElementById("form").reset();
         document.getElementById("content").innerHTML = "";
-        
+
     };
     var c = document.getElementById("content");
     c.appendChild(br);
