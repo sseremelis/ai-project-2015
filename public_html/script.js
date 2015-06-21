@@ -2,68 +2,98 @@ var neigh = new Array();  //to store the 4 neighbours of the cell
 var visited = new Array(); //to store the cells that the algorithm has visited
 var path = new Array(); //to store the final path
 
-function displayMaze() { //
-    var fileInput = document.getElementById('fileInput'); //get the file selector
-    var file = fileInput.files[0]; //store the reference to the file
-    var textType = /text.*/;
+function getText() {
+    var xmlhttp;
+    var txt = '';
+    if (window.XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest();
+    }
+    else {
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            txt = xmlhttp.responseText;
+            textToGraphics(txt);
+        }
+    }
+    xmlhttp.open("GET", "maze_file.txt", true);
+    xmlhttp.send();
+}
+function textToGraphics(e) {
+    var text = e;
+    var lines = text.split(/\n/g); //split the text to every line
+    var newTable = document.createElement("table");
+    table_rows = lines.length - 1;
 
-    if (file.type.match(textType)) {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var text = e.target.result;
-            var lines = text.split(/\n/g); //split the text to every line
-            var newTable = document.createElement("table");
-            table_rows = lines.length - 1;
+    for (var rows = 0; rows < lines.length - 1; rows++) {
+        var newRow = document.createElement("tr");
+        newTable.appendChild(newRow);
+        var char = lines[rows].split(" "); //
 
-            for (var rows = 0; rows < lines.length - 1; rows++) {
-                var newRow = document.createElement("tr");
-                newTable.appendChild(newRow);
-                var char = lines[rows].split(" "); //
+        for (var cols = 0; cols < char.length; cols++) {
+            var newCell = document.createElement("td");
+            var str = char[cols].trim();
+            var c = document.createTextNode(str);
+            switch (str) {
+                case '-1':
+                    newCell.setAttribute("class", "walls");
+                    newCell.setAttribute("value", "-1");
+                    break;
+                case 'A':
+                    newCell.setAttribute("class", "A");
+                    newCell.setAttribute("value", "A");
+                    break;
+                case 'B':
+                    newCell.setAttribute("class", "B");
+                    newCell.setAttribute("value", "B");
+                    break;
+                case 'S':
+                    newCell.setAttribute("class", "S");
+                    newCell.setAttribute("value", "S");
+                    break;
+                case 'G':
+                    newCell.setAttribute("class", "G");
+                    newCell.setAttribute("value", "G");
+                    break;
+                default:
+                    newCell.setAttribute("value", str);
+                    break;
 
-                for (var cols = 0; cols < char.length; cols++) {
-                    var newCell = document.createElement("td");
-                    var str = char[cols].trim();
-                    var c = document.createTextNode(str);
-                    switch (str) {
-                        case '-1':
-                            newCell.setAttribute("class", "walls");
-                            newCell.setAttribute("value", "-1");
-                            break;
-                        case 'A':
-                            newCell.setAttribute("class", "A");
-                            newCell.setAttribute("value", "A");
-                            break;
-                        case 'B':
-                            newCell.setAttribute("class", "B");
-                            newCell.setAttribute("value", "B");
-                            break;
-                        case 'S':
-                            newCell.setAttribute("class", "S");
-                            newCell.setAttribute("value", "S");
-                            break;
-                        case 'G':
-                            newCell.setAttribute("class", "G");
-                            newCell.setAttribute("value", "G");
-                            break;
-                        default:
-                            newCell.setAttribute("value", str);
-                            break;
-
-                    }
-                    newCell.setAttribute("id", rows + ":" + cols);
-                    newCell.appendChild(c);
-                    newRow.appendChild(newCell);
-                }
             }
-            table_columns = char.length;
-            var cont = document.getElementById("content");
-            cont.innerHTML = '';
-            cont.appendChild(newTable);
-        };
+            newCell.setAttribute("id", rows + ":" + cols);
+            newCell.appendChild(c);
+            newRow.appendChild(newCell);
+        }
+    }
+    table_columns = char.length;
+    var cont = document.getElementById("content");
+    cont.innerHTML = '';
+    cont.appendChild(newTable);
+}
 
-        reader.readAsText(file);
-    } else {
-        fileDisplayArea.innerText = "File not supported!";
+function displayMaze(par) { //
+    if (par == "file") {
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            var textType = /text.*/;
+            var fileInput = document.getElementById('fileInput'); //get the file selector
+            var file = fileInput.files[0]; //store the reference to the file
+
+            if (file.type.match(textType)) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    textToGraphics(reader.result);
+                };
+                reader.readAsText(file);
+            } else {
+                fileDisplayArea.innerText = "File not supported!";
+            }
+        } else {
+            alert('The File APIs are not fully supported by your browser.');
+        }
+    }
+    else {
+        getText();
     }
 }
 
@@ -138,14 +168,14 @@ function DFS(start, end) {
 
         for (var i = 0; i < neigh.length; i++) {
             frontier.unshift(neigh[i]); //put the children of the first element in the
-            map.set(neigh[i],state);
+            map.set(neigh[i], state);
         }
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
         state = frontier[0]; //set the state as the first element of the frontier
     }
-    findShortestPath(state,s,map);
+    findShortestPath(state, s, map);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
@@ -225,7 +255,7 @@ function colorPath(path) {
 }
 
 function addClearButton() {
-    
+
     var b = document.createElement("button");
     var br = document.createElement("br");
     var t = document.createTextNode("Clear");

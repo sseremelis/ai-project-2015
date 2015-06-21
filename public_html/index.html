@@ -11,19 +11,21 @@
     <body>
         <form id="form">
             <p>Select the maze file</p>
-            <input type="file" id="fileInput" onchange="displayMaze()">
-            </form>
-            <p>Select the algorithm</p>
-            <select id="algorithms">
-                <option value="BFS">Breadth First Search</option>
-                <option value="DFS">Depth First Search</option>
-                <option value="BnB">Branch and Bound</option>
-                <option value="BF">Best First</option>
-                <option value="Astar">A*</option>
-            </select>
-            <br><br>
-            <button id="searchButton" onclick="selectAlgorithm();">Search</button>
-        
+            <input type="file" id="fileInput" onchange="displayMaze('file')">
+        </form>
+        <p>or</p>
+        <input type="submit" onclick="displayMaze()" value="Use sample maze file" />
+        <p>Select the algorithm</p>
+        <select id="algorithms">
+            <option value="BFS">Breadth First Search</option>
+            <option value="DFS">Depth First Search</option>
+            <option value="BnB">Branch and Bound</option>
+            <option value="BF">Best First</option>
+            <option value="Astar">A*</option>
+        </select>
+        <br><br>
+        <button id="searchButton" onclick="selectAlgorithm();">Search</button>
+
         <br><br>
 
         <div id="content"></div>
