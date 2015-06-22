@@ -20,6 +20,7 @@ function getText() {
     xmlhttp.open("GET", "maze_file.txt", true);
     xmlhttp.send();
 }
+
 function textToGraphics(e) {
     var text = e;
     var lines = text.split(/\n/g); //split the text to every line
@@ -43,21 +44,26 @@ function textToGraphics(e) {
                 case 'A':
                     newCell.setAttribute("class", "A");
                     newCell.setAttribute("value", "A");
+                    newCell.setAttribute("cost","0");
                     break;
                 case 'B':
                     newCell.setAttribute("class", "B");
                     newCell.setAttribute("value", "B");
+                    newCell.setAttribute("cost","0");
                     break;
                 case 'S':
                     newCell.setAttribute("class", "S");
                     newCell.setAttribute("value", "S");
+                    newCell.setAttribute("cost","0");
                     break;
                 case 'G':
                     newCell.setAttribute("class", "G");
                     newCell.setAttribute("value", "G");
+                    newCell.setAttribute("cost","0");
                     break;
                 default:
                     newCell.setAttribute("value", str);
+                    newCell.setAttribute("cost", str);
                     break;
 
             }
@@ -224,7 +230,6 @@ function BFS(start, end) {
             console.log(frontier[i].id);
         }
         state = frontier[0]; //set the state as the first element of the frontier
-        previousNeighLength = neigh.length;
     }
     findShortestPath(state, s, map);
     if (end == "canteen") {
@@ -237,6 +242,69 @@ function BFS(start, end) {
         colorPath(path);
         addClearButton();
     }
+}
+
+function BnB(start, end) {
+    var frontier = new Array();
+    var map = new Map();
+    var state;
+    var cost = 0;
+    var s = document.getElementsByClassName(start)[0];
+    if (end != "canteen") {
+        var goal = document.getElementsByClassName(end)[0];
+    }
+    frontier.push(s); //put the starting element in the frontier
+    state = frontier[0];
+    var continueSearch = true;
+    while (continueSearch == true) {
+        if (end == "canteen") {
+            if (state.getAttribute("value") == "A" || state.getAttribute("value") == "B") {
+                continueSearch = false;
+                break;
+            }
+        }
+        else {
+            if (state.getAttribute("value") == goal.getAttribute("value")) {
+                continueSearch = false;
+                break;
+            }
+        }
+        console.log(state.getAttribute("value"));
+        visited.push(state);
+        cost = parseInt(state.getAttribute("cost"));
+        frontier.shift(); //remove the first element from frontier
+        findNeighbours(state); //get the children of the first element in the frontier
+        for (var i = 0; i < neigh.length; i++) {
+            frontier.push(neigh[i]); //put the children of the first element in the
+            node_cost = parseInt(neigh[i].getAttribute("value"));
+            if (isNaN(node_cost)){  //cost of A,B,G returns NaN so we make it zero
+                node_cost = 0;
+            }
+            neigh[i].setAttribute("cost",node_cost+cost);
+            map.set(neigh[i], state);
+        }
+        frontier.sort(function (a, b) {
+            return parseInt(a.getAttribute("cost")) - parseInt(b.getAttribute("cost"));
+        });
+        for (var i = 0; i < frontier.length; i++) {
+            console.log(frontier[i].id);
+        }
+        state = frontier[0];
+
+    }
+    findShortestPath(state, s, map);
+    if (end == "canteen") {
+        console.log("Found canteen " + state.getAttribute("value"));
+        visited.length = 0;
+        colorPath(path);
+        BnB(state.getAttribute("value"), "G");
+    }
+    else {
+        console.log("Found goal !!! cost: "+state.getAttribute("cost"));
+        colorPath(path);
+        addClearButton();
+    }
+
 }
 
 function findShortestPath(curNode, start, map) {
