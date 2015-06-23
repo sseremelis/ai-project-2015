@@ -2,6 +2,7 @@ var neigh = new Array();  //to store the 4 neighbours of the cell
 var visited = new Array(); //to store the cells that the algorithm has visited
 var path = new Array(); //to store the final path
 
+
 function getText() {
     var xmlhttp;
     var txt = '';
@@ -11,7 +12,7 @@ function getText() {
     else {
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             txt = xmlhttp.responseText;
             textToGraphics(txt);
@@ -20,6 +21,7 @@ function getText() {
     xmlhttp.open("GET", "maze_file.txt", true);
     xmlhttp.send();
 }
+
 
 function textToGraphics(e) {
     var text = e;
@@ -78,6 +80,7 @@ function textToGraphics(e) {
     cont.appendChild(newTable);
 }
 
+
 function displayMaze(par) { //
     if (par == "file") {
         if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -87,7 +90,7 @@ function displayMaze(par) { //
 
             if (file.type.match(textType)) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     textToGraphics(reader.result);
                 };
                 reader.readAsText(file);
@@ -103,12 +106,14 @@ function displayMaze(par) { //
     }
 }
 
+
 function selectAlgorithm() {
     document.getElementById("searchButton").disabled = true;
     var dropdown = document.getElementById("algorithms");
     var alg = dropdown[dropdown.selectedIndex].value;
     window[alg]("S", "canteen"); //call the algorithm that the user chose
 }
+
 
 function findNeighbours(start) {
 //    var start = document.getElementsByClassName(center)[0];
@@ -142,6 +147,7 @@ function findNeighbours(start) {
         }
     }
 }
+
 
 function DFS(start, end) {
     var frontier = new Array();
@@ -194,6 +200,7 @@ function DFS(start, end) {
     }
 }
 
+
 function BFS(start, end) {
     var map = new Map(); //store node and the next node it went
     var frontier = new Array();
@@ -244,6 +251,7 @@ function BFS(start, end) {
     }
 }
 
+
 function BnB(start, end) {
     var frontier = new Array();
     var map = new Map();
@@ -283,7 +291,7 @@ function BnB(start, end) {
             neigh[i].setAttribute("cost", node_cost + cost);
             map.set(neigh[i], state);
         }
-        frontier.sort(function(a, b) {
+        frontier.sort(function (a, b) {
             return parseInt(a.getAttribute("cost")) - parseInt(b.getAttribute("cost"));
         });
         for (var i = 0; i < frontier.length; i++) {
@@ -306,6 +314,73 @@ function BnB(start, end) {
     }
 
 }
+
+
+function BF(start, end) {
+    var frontier = new Array();
+    var map = new Map();
+    var state;
+    var cost = 0;
+    var s = document.getElementsByClassName(start)[0];
+    if (end != "canteen") {
+        var goal = document.getElementsByClassName(end)[0];
+    }
+    frontier.push(s); //put the starting element in the frontier
+    state = frontier[0];
+    var continueSearch = true;
+    while (continueSearch == true) {
+        if (end == "canteen") {
+            if (state.getAttribute("value") == "A" || state.getAttribute("value") == "B") {
+                continueSearch = false;
+                break;
+            }
+        }
+        else {
+            if (state.getAttribute("value") == goal.getAttribute("value")) {
+                continueSearch = false;
+                break;
+            }
+        }
+        console.log(state.getAttribute("value"));
+        visited.push(state);
+        frontier.shift(); //remove the first element from frontier
+        findNeighbours(state); //get the children of the first element in the frontier
+        for (var i = 0; i < neigh.length; i++) {
+            frontier.push(neigh[i]); //put the children of the first element in the
+            map.set(neigh[i], state);
+        }
+        frontier.sort(function (a, b) {
+            if (a.getAttribute("value") == 'A' || a.getAttribute("value") == 'B' || a.getAttribute("value") == 'G') {
+                return -1;
+            }
+            else if (b.getAttribute("value") == 'A' || b.getAttribute("value") == 'B' || b.getAttribute("value") == 'G') {
+                return 1;
+            }
+            else {
+                return parseInt(a.getAttribute("value")) - parseInt(b.getAttribute("value"));
+            }
+        });
+        for (var i = 0; i < frontier.length; i++) {
+            console.log(frontier[i].id);
+        }
+        state = frontier[0];
+    }
+    findShortestPath(state, s, map);
+    if (end == "canteen") {
+        console.log("Found canteen " + state.getAttribute("value"));
+        visited.length = 0;
+        colorPath(path);
+        BF(state.getAttribute("value"), "G");
+    }
+    else {
+        console.log("Found goal !!! cost: " + state.getAttribute("cost"));
+        colorPath(path);
+        addClearButton();
+    }
+
+}
+
+
 function Astar(start, end) {
     var map = new Map(); //store node and the next node it went
     var frontier = new Array();
@@ -365,7 +440,7 @@ function Astar(start, end) {
             neigh[i].setAttribute("fs", d + h); // cost is f(s)=d(s)+h(s)
             map.set(neigh[i], state);
         }
-        frontier.sort(function(a, b) {
+        frontier.sort(function (a, b) {
             return parseInt(a.getAttribute("fs")) - parseInt(b.getAttribute("fs"));
         });
         for (var i = 0; i < frontier.length; i++) {
@@ -403,12 +478,15 @@ function calculateManhanttanDistance(a, b) {
     return result;
 
 }
+
+
 function findShortestPath(curNode, start, map) {
     while (curNode.getAttribute("value") != start.getAttribute("value")) {
         path.push(curNode);
         curNode = map.get(curNode);
     }
 }
+
 
 function colorPath(path) {
     for (var i = 0; i < path.length; i++) {
@@ -418,13 +496,14 @@ function colorPath(path) {
     }
 }
 
+
 function addClearButton() {
 
     var b = document.createElement("button");
     var br = document.createElement("br");
     var t = document.createTextNode("Clear");
     b.appendChild(t);
-    b.onclick = function() {
+    b.onclick = function () {
         document.getElementById("form").reset();
         document.getElementById("content").innerHTML = "";
         document.getElementById("searchButton").disabled = false;
@@ -434,68 +513,4 @@ function addClearButton() {
     c.appendChild(br);
     c.appendChild(br);
     c.appendChild(b);
-}
-
-function BF(start, end) {
-    var frontier = new Array();
-    var map = new Map();
-    var state;
-    var cost = 0;
-    var s = document.getElementsByClassName(start)[0];
-    if (end != "canteen") {
-        var goal = document.getElementsByClassName(end)[0];
-    }
-    frontier.push(s); //put the starting element in the frontier
-    state = frontier[0];
-    var continueSearch = true;
-    while (continueSearch == true) {
-        if (end == "canteen") {
-            if (state.getAttribute("value") == "A" || state.getAttribute("value") == "B") {
-                continueSearch = false;
-                break;
-            }
-        }
-        else {
-            if (state.getAttribute("value") == goal.getAttribute("value")) {
-                continueSearch = false;
-                break;
-            }
-        }
-        console.log(state.getAttribute("value"));
-        visited.push(state);
-        frontier.shift(); //remove the first element from frontier
-        findNeighbours(state); //get the children of the first element in the frontier
-        for (var i = 0; i < neigh.length; i++) {
-            frontier.push(neigh[i]); //put the children of the first element in the
-            map.set(neigh[i], state);
-        }
-        frontier.sort(function(a, b) {
-            if(a.getAttribute("value") == 'A' || a.getAttribute("value") == 'B' || a.getAttribute("value")=='G'){
-                return -1;
-            }
-            else if(b.getAttribute("value") == 'A' || b.getAttribute("value") == 'B' || b.getAttribute("value")=='G'){
-                return 1;
-            }
-            else{
-                return parseInt(a.getAttribute("value")) - parseInt(b.getAttribute("value"));
-            }
-        });
-        for (var i = 0; i < frontier.length; i++) {
-            console.log(frontier[i].id);
-        }
-        state = frontier[0];
-    }
-    findShortestPath(state, s, map);
-    if (end == "canteen") {
-        console.log("Found canteen " + state.getAttribute("value"));
-        visited.length = 0;
-        colorPath(path);
-        BF(state.getAttribute("value"), "G");
-    }
-    else {
-        console.log("Found goal !!! cost: " + state.getAttribute("cost"));
-        colorPath(path);
-        addClearButton();
-    }
-
 }
