@@ -292,6 +292,61 @@ function BnB(start, end) {
         state = frontier[0];
 
     }
+    function Astar(start,end){
+        var map = new Map(); //store node and the next node it went
+        var frontier = new Array();
+        var state;
+        var s = document.getElementsByClassName(start)[0];
+        if (end != "canteen") {
+            var goal = document.getElementsByClassName(end)[0];
+        }
+        else{
+            var canteenA = document.getElementsByClassName("A")[0];
+            var canteenB = document.getElementsByClassName("B")[0];
+            
+        }
+        frontier.push(s); //put the starting element in the frontier
+        state = frontier[0];
+        alert(calculateManhanttanDistance(s,canteenA));
+        var continueSearch = true;
+//        while (continueSearch == true) {
+//        if (end == "canteen") {
+//            if (state.getAttribute("value") == "A" || state.getAttribute("value") == "B") {
+//                continueSearch = false;
+//                break;
+//            }
+//        }
+//        else {
+//            if (state.getAttribute("value") == goal.getAttribute("value")) {
+//                continueSearch = false;
+//                break;
+//            }
+//        }
+//        console.log(state.getAttribute("value"));
+//        visited.push(state);
+//        cost = parseInt(state.getAttribute("cost"));
+//        frontier.shift(); //remove the first element from frontier
+//        findNeighbours(state); //get the children of the first element in the frontier
+//        for(i=0; i < neigh.length; i++){
+//            frontier.push(neigh[i]); //put the children of the first element in the
+//            d = parseInt(neigh[i].getAttribute("value"));
+//            if (isNaN(d)){  //cost of A,B,G returns NaN so we make it zero
+//                d = 0;
+//            }
+//            
+//            neigh[i].setAttribute("cost",node_cost+cost);
+//            map.set(neigh[i], state);
+//        }
+//            
+//        }
+//        
+//        
+//        
+//        
+//        
+//        
+    }
+    
     findShortestPath(state, s, map);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
@@ -306,7 +361,19 @@ function BnB(start, end) {
     }
 
 }
-
+function calculateManhanttanDistance(a,b){
+    var coord1 = a.id.split(":"); //get the coordinates of the node a
+    var x1 = parseInt(coord1[0]);
+    var y1 = parseInt(coord1[1]);
+    
+    var coord2 = b.id.split(":"); //get the coordinates of the node b
+    var x2 = parseInt(coord2[0]);
+    var y2 = parseInt(coord2[1]);
+    
+    var result = math.abs(x1 - x2)+ math.abs(y1 - y2);
+    return result;
+    
+}
 function findShortestPath(curNode, start, map) {
     while (curNode.getAttribute("value") != start.getAttribute("value")) {
         path.push(curNode);
