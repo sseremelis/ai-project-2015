@@ -11,7 +11,7 @@ function getText() {
     else {
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             txt = xmlhttp.responseText;
             textToGraphics(txt);
@@ -91,7 +91,7 @@ function displayMaze(par) { //
 
             if (file.type.match(textType)) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     textToGraphics(reader.result);
                 };
                 reader.readAsText(file);
@@ -196,10 +196,10 @@ function showSuccessInTable(state) {
     }
 }
 
-function showTotalCost(heuristic,state) {
+function showTotalCost(heuristic, state) {
     var newCell = document.getElementById("searchTable").insertRow().insertCell();
     newCell.colSpan = "2";
-    newCell.innerHTML = "Total path cost: " + calculatePathCost();
+    newCell.innerHTML = "Total path cost: " + calculatePathCost(heuristic,state);
 }
 
 function DFS(start, end) {
@@ -251,7 +251,7 @@ function DFS(start, end) {
         DFS(state.getAttribute("value"), "G");
     }
     else {
-        console.log("Found goal!!!!"+calculatePathCost())
+        console.log("Found goal!!!!" + calculatePathCost())
         showTotalCost();
         colorPath(path);
         addClearButton();
@@ -343,16 +343,22 @@ function BnB(start, end) {
         cost = parseInt(state.getAttribute("cost"));
         frontier.shift(); //remove the first element from frontier
         findNeighbours(state); //get the children of the first element in the frontier
-        for (var i = 0; i < neigh.length; i++) {
+        for (var i = neigh.length -1; i >=0 ; i--) {
             frontier.push(neigh[i]); //put the children of the first element in the
             node_cost = parseInt(neigh[i].getAttribute("value"));
             if (isNaN(node_cost)) {  //cost of A,B,G returns NaN so we make it zero
                 node_cost = 0;
             }
-            neigh[i].setAttribute("cost", node_cost + cost);
-            map.set(neigh[i], state);
+            
+            if (!map.has(neigh[i])) {
+                neigh[i].setAttribute("cost", node_cost + cost);
+                map.set(neigh[i], state);
+            }
+            else{
+                neigh.slice(i,1);
+            }
         }
-        frontier.sort(function(a, b) {
+        frontier.sort(function (a, b) {
             return parseInt(a.getAttribute("cost")) - parseInt(b.getAttribute("cost"));
         });
         for (var i = 0; i < frontier.length; i++) {
@@ -371,7 +377,7 @@ function BnB(start, end) {
         BnB(state.getAttribute("value"), "G");
     }
     else {
-        showTotalCost();
+        showTotalCost(true,state);
         console.log("Found goal !!! cost: ");
         colorPath(path);
         addClearButton();
@@ -412,7 +418,7 @@ function BF(start, end) {
             frontier.push(neigh[i]); //put the children of the first element in the
             map.set(neigh[i], state);
         }
-        frontier.sort(function(a, b) {
+        frontier.sort(function (a, b) {
             if (a.getAttribute("value") == 'A' || a.getAttribute("value") == 'B' || a.getAttribute("value") == 'G') {
                 return -1;
             }
@@ -426,7 +432,7 @@ function BF(start, end) {
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
-
+        refreshSearchTable(state, frontier);
         state = frontier[0];
     }
     findShortestPath(state, s, map);
@@ -438,8 +444,8 @@ function BF(start, end) {
         BF(state.getAttribute("value"), "G");
     }
     else {
+        showTotalCost();
         console.log("Found goal !!! cost: " + calculatePathCost());
-
         colorPath(path);
         addClearButton();
     }
@@ -506,7 +512,7 @@ function Astar(start, end) {
             neigh[i].setAttribute("fs", d + h); // cost is f(s)=d(s)+h(s)
             map.set(neigh[i], state);
         }
-        frontier.sort(function(a, b) {
+        frontier.sort(function (a, b) {
             return parseInt(a.getAttribute("fs")) - parseInt(b.getAttribute("fs"));
         });
         for (var i = 0; i < frontier.length; i++) {
@@ -524,7 +530,7 @@ function Astar(start, end) {
     }
     else {
 
-        console.log("Found goal !!! cost: " + calculatePathCost(true,state));
+        console.log("Found goal !!! cost: " + calculatePathCost(true, state));
 
         colorPath(path);
         addClearButton();
@@ -556,7 +562,7 @@ function findShortestPath(curNode, start, map) {
     }
 }
 
-function calculatePathCost(heuristic,state) {
+function calculatePathCost(heuristic, state) {
     var total_cost = 0;
     if (heuristic) {
         total_cost = state.getAttribute("cost");
@@ -586,7 +592,7 @@ function addClearButton() {
     var br = document.createElement("br");
     var t = document.createTextNode("Clear");
     b.appendChild(t);
-    b.onclick = function() {
+    b.onclick = function () {
         document.getElementById("form").reset();
         document.getElementById("content").innerHTML = "";
         document.getElementById("searchButton").disabled = false;
