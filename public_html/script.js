@@ -27,6 +27,7 @@ function textToGraphics(e) {
     var text = e;
     var lines = text.split(/\n/g); //split the text to every line
     var newTable = document.createElement("table");
+    newTable.setAttribute("class","mazeTable");
     table_rows = lines.length - 1;
 
     for (var rows = 0; rows < lines.length - 1; rows++) {
@@ -36,6 +37,7 @@ function textToGraphics(e) {
 
         for (var cols = 0; cols < char.length; cols++) {
             var newCell = document.createElement("td");
+            
             var str = char[cols].trim();
             var c = document.createTextNode(str);
             switch (str) {
@@ -111,6 +113,7 @@ function selectAlgorithm() {
     document.getElementById("searchButton").disabled = true;
     var dropdown = document.getElementById("algorithms");
     var alg = dropdown[dropdown.selectedIndex].value;
+    displaySearchTable();
     window[alg]("S", "canteen"); //call the algorithm that the user chose
 }
 
@@ -148,8 +151,41 @@ function findNeighbours(start) {
     }
 }
 
+function displaySearchTable(){
+    var table = document.createElement("table");
+    table.id = "searchTable";
+    var header = table.createTHead();
+    var row = header.insertRow(0);
+    var cell = row.insertCell(0);
+    cell.innerHTML = "Frontier";
+    cell = row.insertCell(1);
+    cell.innerHTML = "State";
+    var c = document.getElementById("content");
+    var br = document.createElement("br");
+    c.appendChild(br);
+    c.appendChild(table);
+}
+
+function refreshSearchTable(state,frontier){
+    var table = document.getElementById("searchTable");
+    var newRow = table.insertRow();
+    var newCell = newRow.insertCell();
+    var newText = "< ";
+    for(var i=0;i<frontier.length;i++){
+        newText = newText + frontier[i].id+" , ";
+    }
+    newText = newText.substring(0, newText.length - 2);
+    newText = newText+" >";
+    newCell.innerHTML = newText;
+    
+    newCell = newRow.insertCell();
+    newCell.innerHTML = state.id;
+    newRow.appendChild(newCell);
+    table.appendChild(newRow);
+}
 
 function DFS(start, end) {
+    
     var frontier = new Array();
     var state;
     var map = new Map();
@@ -185,6 +221,7 @@ function DFS(start, end) {
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
+        refreshSearchTable(state,frontier);
         state = frontier[0]; //set the state as the first element of the frontier
     }
     findShortestPath(state, s, map);
@@ -465,6 +502,7 @@ function Astar(start, end) {
 
 }
 
+
 function calculateManhanttanDistance(a, b) {
     var coord1 = a.id.split(":"); //get the coordinates of the node a
     var x1 = parseInt(coord1[0]);
@@ -513,4 +551,11 @@ function addClearButton() {
     c.appendChild(br);
     c.appendChild(br);
     c.appendChild(b);
+}
+
+
+function colorFrontier(front){
+    for (var i=0;i<front.length; i++){
+        front[i].setAttribute("style","background-color:grey");
+    }
 }
