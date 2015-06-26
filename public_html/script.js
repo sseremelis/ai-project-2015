@@ -2,7 +2,6 @@ var neigh = new Array();  //to store the 4 neighbours of the cell
 var visited = new Array(); //to store the cells that the algorithm has visited
 var path = new Array(); //to store the final path
 
-
 function getText() {
     var xmlhttp;
     var txt = '';
@@ -12,7 +11,7 @@ function getText() {
     else {
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    xmlhttp.onreadystatechange = function () {
+    xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             txt = xmlhttp.responseText;
             textToGraphics(txt);
@@ -27,7 +26,7 @@ function textToGraphics(e) {
     var text = e;
     var lines = text.split(/\n/g); //split the text to every line
     var newTable = document.createElement("table");
-    newTable.setAttribute("class","mazeTable");
+    newTable.setAttribute("class", "mazeTable");
     table_rows = lines.length - 1;
 
     for (var rows = 0; rows < lines.length - 1; rows++) {
@@ -37,7 +36,7 @@ function textToGraphics(e) {
 
         for (var cols = 0; cols < char.length; cols++) {
             var newCell = document.createElement("td");
-            
+
             var str = char[cols].trim();
             var c = document.createTextNode(str);
             switch (str) {
@@ -92,7 +91,7 @@ function displayMaze(par) { //
 
             if (file.type.match(textType)) {
                 var reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     textToGraphics(reader.result);
                 };
                 reader.readAsText(file);
@@ -151,41 +150,60 @@ function findNeighbours(start) {
     }
 }
 
-function displaySearchTable(){
+function displaySearchTable() {
     var table = document.createElement("table");
     table.id = "searchTable";
     var header = table.createTHead();
     var row = header.insertRow(0);
     var cell = row.insertCell(0);
-    cell.innerHTML = "Frontier";
+    cell.innerHTML = "<b>Frontier</b>";
     cell = row.insertCell(1);
-    cell.innerHTML = "State";
+    cell.innerHTML = "<b>State</b>";
     var c = document.getElementById("content");
     var br = document.createElement("br");
     c.appendChild(br);
     c.appendChild(table);
 }
 
-function refreshSearchTable(state,frontier){
+function refreshSearchTable(state, frontier) {
     var table = document.getElementById("searchTable");
     var newRow = table.insertRow();
     var newCell = newRow.insertCell();
     var newText = "< ";
-    for(var i=0;i<frontier.length;i++){
-        newText = newText + frontier[i].id+" , ";
+    for (var i = 0; i < frontier.length; i++) {
+        newText = newText + frontier[i].id + " , ";
     }
     newText = newText.substring(0, newText.length - 2);
-    newText = newText+" >";
+    newText = newText + " >";
     newCell.innerHTML = newText;
-    
+
     newCell = newRow.insertCell();
     newCell.innerHTML = state.id;
     newRow.appendChild(newCell);
     table.appendChild(newRow);
 }
 
+function showSuccessInTable(state) {
+    var table = document.getElementById("searchTable");
+    var newRow = table.insertRow();
+    var newCell = newRow.insertCell();
+    newCell.colSpan = "2";
+    if (state.getAttribute("value") == "G") {
+        newCell.innerHTML = "<b>Found canteen " + state.getAttribute("value") + "</b>";
+    }
+    else {
+        newCell.innerHTML = "<b>Found canteen " + state.getAttribute("value") + "</b>";
+    }
+}
+
+function showTotalCost(heuristic,state) {
+    var newCell = document.getElementById("searchTable").insertRow().insertCell();
+    newCell.colSpan = "2";
+    newCell.innerHTML = "Total path cost: " + calculatePathCost();
+}
+
 function DFS(start, end) {
-    
+
     var frontier = new Array();
     var state;
     var map = new Map();
@@ -221,17 +239,20 @@ function DFS(start, end) {
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
-        refreshSearchTable(state,frontier);
+        refreshSearchTable(state, frontier);
         state = frontier[0]; //set the state as the first element of the frontier
     }
     findShortestPath(state, s, map);
+    showSuccessInTable(state);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
+
         DFS(state.getAttribute("value"), "G");
     }
     else {
-        console.log("Found goal!!!!")
+        console.log("Found goal!!!!"+calculatePathCost())
+        showTotalCost();
         colorPath(path);
         addClearButton();
     }
@@ -273,9 +294,11 @@ function BFS(start, end) {
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
+        refreshSearchTable(state, frontier);
         state = frontier[0]; //set the state as the first element of the frontier
     }
     findShortestPath(state, s, map);
+    showSuccessInTable(state);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
@@ -283,6 +306,7 @@ function BFS(start, end) {
     }
     else {
         console.log("Found goal !!!");
+        showTotalCost();
         colorPath(path);
         addClearButton();
     }
@@ -328,16 +352,18 @@ function BnB(start, end) {
             neigh[i].setAttribute("cost", node_cost + cost);
             map.set(neigh[i], state);
         }
-        frontier.sort(function (a, b) {
+        frontier.sort(function(a, b) {
             return parseInt(a.getAttribute("cost")) - parseInt(b.getAttribute("cost"));
         });
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
+        refreshSearchTable(state, frontier);
         state = frontier[0];
 
     }
     findShortestPath(state, s, map);
+    showSuccessInTable(state);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
@@ -345,7 +371,8 @@ function BnB(start, end) {
         BnB(state.getAttribute("value"), "G");
     }
     else {
-        console.log("Found goal !!! cost: " + state.getAttribute("cost"));
+        showTotalCost();
+        console.log("Found goal !!! cost: ");
         colorPath(path);
         addClearButton();
     }
@@ -357,7 +384,6 @@ function BF(start, end) {
     var frontier = new Array();
     var map = new Map();
     var state;
-    var cost = 0;
     var s = document.getElementsByClassName(start)[0];
     if (end != "canteen") {
         var goal = document.getElementsByClassName(end)[0];
@@ -386,7 +412,7 @@ function BF(start, end) {
             frontier.push(neigh[i]); //put the children of the first element in the
             map.set(neigh[i], state);
         }
-        frontier.sort(function (a, b) {
+        frontier.sort(function(a, b) {
             if (a.getAttribute("value") == 'A' || a.getAttribute("value") == 'B' || a.getAttribute("value") == 'G') {
                 return -1;
             }
@@ -400,9 +426,11 @@ function BF(start, end) {
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
+
         state = frontier[0];
     }
     findShortestPath(state, s, map);
+    showSuccessInTable(state);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
@@ -410,7 +438,8 @@ function BF(start, end) {
         BF(state.getAttribute("value"), "G");
     }
     else {
-        console.log("Found goal !!! cost: " + state.getAttribute("cost"));
+        console.log("Found goal !!! cost: " + calculatePathCost());
+
         colorPath(path);
         addClearButton();
     }
@@ -432,7 +461,7 @@ function Astar(start, end) {
 
     }
     frontier.push(s); //put the starting element in the frontier
-    state = frontier[0];
+    state = s;
     var continueSearch = true;
     while (continueSearch == true) {
         if (end == "canteen") {
@@ -454,7 +483,7 @@ function Astar(start, end) {
         findNeighbours(state); //get the children of the first element in the frontier
         for (i = 0; i < neigh.length; i++) {
             frontier.push(neigh[i]); //put the children of the first element in the
-            nc = parseInt(neigh[i].getAttribute("value"));
+            var nc = parseInt(neigh[i].getAttribute("value")); //nc = node cost
             if (isNaN(nc)) {  //cost of A,B,G returns NaN so we make it zero
                 nc = 0;
             }
@@ -463,7 +492,7 @@ function Astar(start, end) {
                 h1 = calculateManhanttanDistance(neigh[i], canteenA);
                 h2 = calculateManhanttanDistance(neigh[i], canteenB);
                 var h;
-                if (h1 < h2) {
+                if (h1 > h2) {
                     h = h1;
                 }
                 else {
@@ -477,7 +506,7 @@ function Astar(start, end) {
             neigh[i].setAttribute("fs", d + h); // cost is f(s)=d(s)+h(s)
             map.set(neigh[i], state);
         }
-        frontier.sort(function (a, b) {
+        frontier.sort(function(a, b) {
             return parseInt(a.getAttribute("fs")) - parseInt(b.getAttribute("fs"));
         });
         for (var i = 0; i < frontier.length; i++) {
@@ -494,7 +523,9 @@ function Astar(start, end) {
         Astar(state.getAttribute("value"), "G");
     }
     else {
-        console.log("Found goal !!! cost: " + state.getAttribute("cost"));
+
+        console.log("Found goal !!! cost: " + calculatePathCost(true,state));
+
         colorPath(path);
         addClearButton();
     }
@@ -525,6 +556,20 @@ function findShortestPath(curNode, start, map) {
     }
 }
 
+function calculatePathCost(heuristic,state) {
+    var total_cost = 0;
+    if (heuristic) {
+        total_cost = state.getAttribute("cost");
+    }
+    else {
+        for (var i = 0; i < path.length; i++) {
+            total_cost = total_cost + parseInt(path[i].getAttribute("cost"));
+        }
+    }
+    return total_cost;
+
+}
+
 
 function colorPath(path) {
     for (var i = 0; i < path.length; i++) {
@@ -541,7 +586,7 @@ function addClearButton() {
     var br = document.createElement("br");
     var t = document.createTextNode("Clear");
     b.appendChild(t);
-    b.onclick = function () {
+    b.onclick = function() {
         document.getElementById("form").reset();
         document.getElementById("content").innerHTML = "";
         document.getElementById("searchButton").disabled = false;
@@ -554,8 +599,8 @@ function addClearButton() {
 }
 
 
-function colorFrontier(front){
-    for (var i=0;i<front.length; i++){
-        front[i].setAttribute("style","background-color:grey");
+function colorFrontier(front) {
+    for (var i = 0; i < front.length; i++) {
+        front[i].setAttribute("style", "background-color:grey");
     }
 }
