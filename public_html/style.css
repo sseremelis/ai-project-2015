@@ -14,6 +14,7 @@ table,th,td{
     vertical-align: middle;
     border: 1px solid black;
 }
+
 .walls {
     background-color: black;
 }
