@@ -78,6 +78,7 @@ function textToGraphics(e) {
     table_columns = char.length;
     var cont = document.getElementById("content");
     cont.innerHTML = '';
+    cont.setAttribute("filledIn","true");
     cont.appendChild(newTable);
 }
 
@@ -109,6 +110,10 @@ function displayMaze(par) { //
 
 
 function selectAlgorithm() {
+    if(!document.getElementById("content").getAttribute("filledIn")){
+        alert("Please select a maze file first !");
+        return;
+    }
     document.getElementById("searchButton").disabled = true;
     var dropdown = document.getElementById("algorithms");
     var alg = dropdown[dropdown.selectedIndex].value;
@@ -518,10 +523,12 @@ function Astar(start, end) {
         for (var i = 0; i < frontier.length; i++) {
             console.log(frontier[i].id);
         }
+        refreshSearchTable(state,frontier);
         state = frontier[0];
 
     }
     findShortestPath(state, s, map);
+    showSuccessInTable(state);
     if (end == "canteen") {
         console.log("Found canteen " + state.getAttribute("value"));
         visited.length = 0;
@@ -530,8 +537,8 @@ function Astar(start, end) {
     }
     else {
 
-        console.log("Found goal !!! cost: " + calculatePathCost(true, state));
-
+        console.log("Found goal !!! cost: ");
+        showTotalCost(true,state);
         colorPath(path);
         addClearButton();
     }
